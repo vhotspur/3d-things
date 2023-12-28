@@ -37,10 +37,14 @@ module aircraft() {
     }
 }
 
-cylinder(h=base_height, r=tile_size, $fn=6);
-translate([0, -tile_size/2, base_height + fusilage_diameter/2]) {
-    rotate([270, 0, 0]) {
-        aircraft();
+module pawn() {
+    cylinder(h=base_height, r=tile_size, $fn=6);
+    translate([0, -tile_size/2, base_height + fusilage_diameter/2]) {
+        rotate([270, 0, 0]) {
+            aircraft();
+        }
     }
+    cylinder(h=holder_height, d=holder_diameter);
 }
-cylinder(h=holder_height, d=holder_diameter);
+
+pawn();
