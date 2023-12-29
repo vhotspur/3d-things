@@ -1,13 +1,58 @@
 
+//
+// 0 = fighter without any engraving
+// 1 = ace/bomber without any engraving
+// 2 = US fighter
+// 3 = US ace/bomber
+// 4 = Japanese figter
+// 5 = Japanese ace/bomber
+// 6 = activation ring
+//
+to_print = 2;
+
+print_configurations = [
+  ["none", false],
+  ["none", true],
+  ["star", false],
+  ["star", true],
+  ["sun", false],
+  ["sun", true],
+];
+
 tile_size = 14;
 base_height = 5;
 
 holder_diameter = 5;
 holder_height = 14;
-
+activation_ring_width = 4;
 fusilage_diameter = 3;
 
-$fn = 40;
+activation_ring_inner = holder_diameter * 1.1;
+activation_ring_height = 0.5 * holder_height;
+
+$fn = 80;
+
+module rounded_extrusion(extrusion, border=0.5) {
+    minkowski() {
+        sphere(r=border);
+        linear_extrude(extrusion) {
+            children();
+        }
+    }
+}
+
+// https://gist.github.com/anoved/9622826?permalink_comment_id=4384183#gistcomment-4384183
+module star(p=5, r1=4, r2=10) {
+    s = [
+            for(i=[0:p*2])
+            [
+                (i % 2 == 0 ? r1 : r2)*cos(180*i/p),
+                (i % 2 == 0 ? r1 : r2)*sin(180*i/p)
+            ]
+    ];
+
+    polygon(s);
+}
 
 module wing(span, chord, tip_chord_scale=1) {
     tip_chord = chord * tip_chord_scale;
@@ -40,15 +85,6 @@ module fuselage(total_length, engine_width, tail_width, engine_length_fraction=0
     }
 }
 
-module rounded_extrusion(extrusion, border=0.5) {
-    minkowski() {
-        sphere(r=border);
-        linear_extrude(extrusion) {
-            children();
-        }
-    }
-}
-
 module aircraft(length, wingspan, diameter, propeller, thickness, height, edge_size=0.5) {
     extrusion_size = height - 2 * edge_size;
     raw_wingspan = wingspan - 2 * edge_size;
@@ -64,7 +100,7 @@ module aircraft(length, wingspan, diameter, propeller, thickness, height, edge_s
     rounded_extrusion(extrusion_size, edge_size) {
         translate([length/2 - length/12 - edge_size, 0]) {
             rotate([0, 0, 180]) {
-                wing(0.3*wingspan, length/6, 0.8);
+                wing(0.3*wingspan, length/8, 0.5);
             }
         }
     }
@@ -86,19 +122,6 @@ module aircraft(length, wingspan, diameter, propeller, thickness, height, edge_s
             square([thickness - 2*edge_size, propeller - 2*edge_size]);
         }
     }
-}
-
-// https://gist.github.com/anoved/9622826?permalink_comment_id=4384183#gistcomment-4384183
-module star(p=5, r1=4, r2=10) {
-    s = [
-            for(i=[0:p*2]) 
-            [
-                (i % 2 == 0 ? r1 : r2)*cos(180*i/p),
-                (i % 2 == 0 ? r1 : r2)*sin(180*i/p)
-            ]
-    ];
-    
-    polygon(s);
 }
 
 module pawn_base_frame(size, height, width) {
@@ -131,7 +154,6 @@ module pawn_base(size, height, inset_height, inset, ace=true) {
     }
 }
 
-
 module pawn(size, base_height, inset_height, fusilage_diameter, holder_height, holder_diameter, inset) {
     intersection() {
         union() {
@@ -148,16 +170,32 @@ module pawn(size, base_height, inset_height, fusilage_diameter, holder_height, h
                         0.5
                     );
                 }
-                    //aircraft(1.4*size, 1.4*size, size/4, 0.7*size, 0.4);
             }
             translate([0, 0, inset_height]) {
                 minkowski() {
-                    sphere(1);
-                    cylinder(h=base_height + inset_height + holder_height, d=holder_diameter);
+                    sphere(0.5);
+                    cylinder(h=base_height + inset_height + holder_height, d=holder_diameter-1);
                 }
             }
         }
         cylinder(h=base_height + holder_height + 10 * inset_height, r=size, $fn=6);
+    }
+}
+
+module activation_ring(inner, width, height, edge_size=0.5) {
+    shift_x = width / 2 - edge_size;
+    shift_y = height / 2 - edge_size;
+    translate([0, 0, height/2]) {
+        rotate_extrude() {
+            translate([width/2 + inner/2, 0]) {
+                hull() {
+                    translate([-shift_x, -shift_y]) circle(edge_size);
+                    translate([-shift_x, +shift_y]) circle(edge_size);
+                    translate([+shift_x, +shift_y]) circle(edge_size);
+                    translate([+shift_x, -shift_y]) circle(edge_size);
+                }
+            }
+        }
     }
 }
 
@@ -173,9 +211,22 @@ module make_pawn(pawn_type, ace) {
     );
 }
 
+if ((to_print >= 0) && (to_print < len(print_configurations))) {
+    make_pawn(print_configurations[to_print][0], print_configurations[to_print][1]);
+} else if (to_print < 0) {
+    make_pawn("star", false);
+    translate([0, 0, 1.6 * base_height]) {
+        activation_ring(activation_ring_inner, activation_ring_width, activation_ring_height);
+    }
+} else {
+    activation_ring(activation_ring_inner, activation_ring_width, activation_ring_height);
+}
+
+/*
 pawn_shift = 2.3 * tile_size;
 
 translate([0*pawn_shift, 0*pawn_shift, 0]) make_pawn("star", false);
 translate([1*pawn_shift, 0*pawn_shift, 0]) make_pawn("star", true);
 translate([0*pawn_shift, 1*pawn_shift, 0]) make_pawn("sun", false);
 translate([1*pawn_shift, 1*pawn_shift, 0]) make_pawn("sun", true);
+*/
