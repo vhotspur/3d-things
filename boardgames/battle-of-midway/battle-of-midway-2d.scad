@@ -30,7 +30,7 @@ fusilage_diameter = 3;
 activation_ring_inner = holder_diameter * 1.1;
 activation_ring_height = 0.5 * holder_height;
 
-$fn = 80;
+$fn = 20;
 
 module rounded_extrusion(extrusion, border=0.5) {
     minkowski() {
