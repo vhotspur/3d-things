@@ -1,6 +1,6 @@
 
 
-to_print = 116;
+to_print = 200;
 
 base_height = 3.2;
 base_width = 7.8;
@@ -107,7 +107,37 @@ module make_straight_track(size) {
     translate([-base_width/2 + (size)*base_width, 0, 0]) {
         make_connecting_crosstie();
     }
+}
 
+module make_curve_track() {
+    curve_angle = 360/16;
+    the_radius = 38*base_width;
+    crosstie_offset = the_radius + gauge/2 + rail_width/2;
+    crosstie_count = 3;
+    rotate_extrude(convexity=4, angle=curve_angle) {
+        translate([the_radius, 0]) make_rail_section();
+        translate([the_radius+gauge+rail_width, 0]) make_rail_section();
+    }
+    translate([crosstie_offset, base_width/2, 0]) {
+        rotate([0, 0, 270]) {
+            make_connecting_crosstie();
+        }
+    }
+    rotate([0, 0, curve_angle]) {
+        translate([crosstie_offset, -base_width/2, 0]) {
+            rotate([0, 0, 90]) {
+                make_connecting_crosstie();
+            }
+        }
+    }
+
+    for (i=[1:crosstie_count-1]) {
+        rotate([0, 0, i*curve_angle/crosstie_count]) {
+            translate([crosstie_offset - gauge/2, -base_width, 0]) {
+                cube([gauge, base_width*2, base_height]);
+            }
+        }
+    }
 }
 
 module make_connection_test(monorail=false) {
@@ -158,4 +188,8 @@ if (to_print == 10) {
 
 if ((to_print > 100) && (to_print < 200)) {
     make_straight_track(to_print - 100);
+}
+
+if (to_print == 200) {
+    make_curve_track();
 }
