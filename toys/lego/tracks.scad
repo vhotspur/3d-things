@@ -1,6 +1,7 @@
 
+// http://l-gauge.org/wiki/index.php?title=Track_Geometry
 
-to_print = 200;
+to_print = 1;
 
 base_height = 3.2;
 base_width = 7.8;
