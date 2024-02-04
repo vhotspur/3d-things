@@ -4,11 +4,11 @@
 // 1 = ace/bomber without any engraving
 // 2 = US fighter
 // 3 = US ace/bomber
-// 4 = Japanese figter
+// 4 = Japanese fighter
 // 5 = Japanese ace/bomber
 // 6 = activation ring
 //
-to_print = 2;
+to_print = 0;
 
 print_configurations = [
   ["none", false],
@@ -19,16 +19,18 @@ print_configurations = [
   ["sun", true],
 ];
 
-tile_size = 14;
+tile_size = 13;
 base_height = 5;
 
-holder_diameter = 5;
-holder_height = 14;
+holder_diameter = 7;
+holder_height = 10;
 activation_ring_width = 4;
 fusilage_diameter = 3;
 
 activation_ring_inner = holder_diameter * 1.1;
-activation_ring_height = 0.5 * holder_height;
+activation_ring_height = 0.4 * holder_height;
+
+draw_propeller = true;
 
 $fn = 20;
 
@@ -37,6 +39,27 @@ module rounded_extrusion(extrusion, border=0.5) {
         sphere(r=border);
         linear_extrude(extrusion) {
             children();
+        }
+    }
+}
+
+module rays(inner_diameter, outer_diameter, count) {
+    intersection() {
+        difference() {
+            circle(d=outer_diameter);
+            circle(d=inner_diameter);
+        }
+        union() {
+            for (i=[0:count]) let (
+                start_angle = 360 * 2 * i / (2 * count),
+                end_angle = 360 * (2 * i + 1) / (2 * count)
+            ) {
+                polygon([
+                    [0, 0],
+                    [sin(start_angle) * outer_diameter, cos(start_angle) * outer_diameter],
+                    [sin(end_angle) * outer_diameter, cos(end_angle) * outer_diameter],
+                ]);
+            }
         }
     }
 }
@@ -71,7 +94,7 @@ module fuselage(total_length, engine_width, tail_width, engine_length_fraction=0
     engine_length = total_length * engine_length_fraction;
     fuselage_length = total_length - engine_length;
     tail_offset = (engine_width - tail_width) / 2;
-    
+
     translate([engine_length / 2 - total_length / 2, 0]) {
         square([engine_length, engine_width], center=true);
     }
@@ -88,14 +111,14 @@ module fuselage(total_length, engine_width, tail_width, engine_length_fraction=0
 module aircraft(length, wingspan, diameter, propeller, thickness, height, edge_size=0.5) {
     extrusion_size = height - 2 * edge_size;
     raw_wingspan = wingspan - 2 * edge_size;
-    
+
     // Main wing
     rounded_extrusion(extrusion_size, edge_size) {
         translate([-0.1*length, 0]) {
             wing(raw_wingspan, length/4, 0.7);
         }
     }
-    
+
     // Tail
     rounded_extrusion(extrusion_size, edge_size) {
         translate([length/2 - length/12 - edge_size, 0]) {
@@ -104,22 +127,32 @@ module aircraft(length, wingspan, diameter, propeller, thickness, height, edge_s
             }
         }
     }
-    
+
     // Fuselage
     rounded_extrusion(extrusion_size, edge_size) {
         translate([thickness - 2*edge_size, 0]) {
-            fuselage(length-thickness-4*edge_size, diameter, 0.5*diameter);
+            fuselage(length-thickness-edge_size, diameter, 0.4*diameter);
         }
     }
-    // Propeller
-    rounded_extrusion(extrusion_size, edge_size) {
-        translate([-length/2  - edge_size + thickness, -thickness + edge_size]) {
-            square([thickness + 2*edge_size, 2*thickness - 2*edge_size]);
+
+    if (draw_propeller) {
+        // Propeller
+        rounded_extrusion(extrusion_size, edge_size) {
+            translate([-length/2  - edge_size + thickness, -thickness + edge_size]) {
+                square([thickness + 2*edge_size, 2*thickness - 2*edge_size]);
+            }
         }
-    }
-    rounded_extrusion(extrusion_size, edge_size) {
-        translate([-length/2 + edge_size, -propeller/2 + edge_size]) {
-            square([thickness - 2*edge_size, propeller - 2*edge_size]);
+        rounded_extrusion(extrusion_size, edge_size) {
+            translate([-length/2 + edge_size, -propeller/2 + edge_size]) {
+                square([thickness - 2*edge_size, propeller - 2*edge_size]);
+            }
+        }
+    } else {
+        rounded_extrusion(extrusion_size, edge_size) {
+            translate([-length/2  - edge_size + thickness * 2, 0]) {
+                square([2*thickness, thickness/2], center=true);
+                //translate([edge_size, thickness/2 + edge_size/2]) circle(0.5*thickness);
+            }
         }
     }
 }
@@ -140,11 +173,12 @@ module pawn_base(size, height, inset_height, inset, ace=true) {
             linear_extrude(2 * inset_height) {
                 if (inset == "star") {
                     rotate([0, 0, 30]) {
-                        star(5, 0.32*size, 0.8*size);
+                        star(5, 0.29*size, 0.75*size);
                     }
                 }
                 if (inset == "sun") {
-                    circle(d=1.2*size);
+                    rays(1, 1.4*size, 12);
+                    circle(d=0.7*size);
                 }
             }
         }
