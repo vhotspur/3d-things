@@ -19,16 +19,17 @@ hole_count = 5;
 hole_margin = 35;
 hole_diameter = 13;
 hole_distance = 32;
-drill_diameter = 4;
-drill_depth = 3;
+drill_diameter = 4.8;
+drill_depth = 5;
 
 dovetail_half_count = 2;
 dovetail_offset = 3;
 dovetail_depth = 5;
 
 end_of_board_pin_size = rig_height / 2;
+continuation_pin_size = rig_height / 2;
 
-pin_scale = 0.95;
+pin_scale = 0.98;
 
 function flatten_list(data) = [
     for (i = data)
@@ -91,8 +92,8 @@ if (to_print == 0) {
         }
     }
 } else if (to_print == 1) {
-    cylinder(d=hole_diameter*pin_scale, h=2*rig_height);
-    cylinder(d=drill_diameter*pin_scale, h=2*rig_height + drill_depth);
+    cylinder(d=hole_diameter*pin_scale, h=rig_height + continuation_pin_size);
+    cylinder(d=drill_diameter*pin_scale, h=rig_height + continuation_pin_size + drill_depth);
 } else if (to_print == 2) {
     dovetail_coords = make_dovetail_joint(dovetail_half_count, rig_width, dovetail_depth, dovetail_offset);
     pin_coords_shifted = [
