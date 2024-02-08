@@ -5,17 +5,16 @@ to_print = 1;
 
 base_height = 3.2;
 base_width = 7.8;
-rail_height = 3.4;
-rail_width = 2.3;
-pseudo_gauge_multiple = 4;
+rail_height = 6;
+rail_width = 2.5;
+gauge = 37.5;
 connection_diameter = 5;
 connection_diameter_scaling = 0.05;
 connection_size = 2.5;
 connection_width = 3;
-connection_width_scaling = 0.1;
+connection_width_scaling = 0.05;
 connection_uncenter = 12;
 connection_expected_gap = 0.2;
-gauge = base_width * pseudo_gauge_multiple + base_width - rail_width;
 
 
 $fn = 100;
@@ -110,11 +109,10 @@ module make_straight_track(size) {
     }
 }
 
-module make_curve_track() {
-    curve_angle = 360/16;
+module make_curve_track(circle_fragment=16, crosstie_count=3) {
+    curve_angle = 360/circle_fragment;
     the_radius = 38*base_width;
     crosstie_offset = the_radius + gauge/2 + rail_width/2;
-    crosstie_count = 3;
     rotate_extrude(convexity=4, angle=curve_angle) {
         translate([the_radius, 0]) make_rail_section();
         translate([the_radius+gauge+rail_width, 0]) make_rail_section();
@@ -192,5 +190,8 @@ if ((to_print > 100) && (to_print < 200)) {
 }
 
 if (to_print == 200) {
-    make_curve_track();
+    make_curve_track(16, 3);
+}
+if (to_print == 204) {
+    make_curve_track(12, 4);
 }
