@@ -2,12 +2,11 @@
 
 board_width = 18.5;
 rig_wall_height = 40;
-rig_wall_thickness = 8;
+rig_wall_thickness= 6;
 rig_width = 218;
-rig_bottom_thickness = 20;
-hole_diameter = 16.3;
-hole_count = 5;
-hole_center_distance = 45;
+rig_bottom_thickness = 15;
+hole_diameter = 16.2;
+hole_center_distances = [0, 30, 80];
 
 corner_radius = rig_wall_thickness / 3;
 
@@ -19,7 +18,11 @@ marker_width = 1;
 marker_center_distance_small = 5;
 marker_large_multiple = 2;
 
-first_hole_shift = hole_center_distance * (hole_count - 1) / 2;
+hole_center_distances = [10];
+rig_bottom_thickness = 17;
+rig_width = 50;
+
+
 marker_half_count = floor(rig_width / marker_center_distance_small / 2) + 3;
 
 
@@ -43,8 +46,8 @@ difference() {
             rig_bottom_thickness
         ]);
     }
-    for (i=[1:hole_count]) {
-        translate([0, (i-1)*hole_center_distance - first_hole_shift, rig_bottom_thickness/2-1]) {
+    for (from_center=concat(hole_center_distances, -hole_center_distances)) {
+        translate([0, from_center, rig_bottom_thickness/2-1]) {
             cylinder(h=rig_bottom_thickness+3, d=hole_diameter, center=true);
         }
     }
