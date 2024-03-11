@@ -1,6 +1,6 @@
 
 
-backstop_thickness = 6;
+backstop_thickness = 15;
 backstop_height = 34;
 rig_width = 90;
 rig_length = 50;
@@ -9,7 +9,7 @@ hole_diameter = 16.2;
 hole_distance = 9;
 dowel_diameter = 8;
 dowel_gap_bottom = 2;
-
+dowel_depth_left = 20;
 
 $fn = 100;
 
@@ -35,5 +35,12 @@ difference() {
     }
     translate([-hole_distance, 0, -1]) {
         cylinder(h=2+rig_thickness, d=hole_diameter);
+    }
+    
+    translate([-rig_length + dowel_depth_left, 0, -1]) {
+        cylinder(2+rig_thickness, d=dowel_diameter);
+    }
+    translate([-rig_length - 1, -dowel_diameter/2, -1]) {
+        cube([dowel_depth_left, dowel_diameter, 2+rig_thickness]);
     }
 }
