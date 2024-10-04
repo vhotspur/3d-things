@@ -1,7 +1,7 @@
 
 // http://l-gauge.org/wiki/index.php?title=Track_Geometry
 
-to_print = 1;
+to_print = 300;
 
 base_height = 3.2;
 base_width = 7.8;
@@ -194,4 +194,17 @@ if (to_print == 200) {
 }
 if (to_print == 204) {
     make_curve_track(12, 4);
+}
+
+if (to_print == 300) {
+    translate([-38*base_width, 0, 0]) {
+        make_curve_track(16, 3);
+    }
+    translate([gauge + 3*base_width + rail_width - 1, 15*base_width - 4, 0]) {
+        rotate([0, 0, 180-360/16]) {
+            translate([-38*base_width, 0, 0]) {
+                make_curve_track(16, 3);
+            }
+        }
+    }
 }
