@@ -13,7 +13,9 @@
 size = 143;
 lock_size = 20;
 height = 50;
-wall_width = 1;
+wall_width = 1.2;
+lid_height = 10;
+lid_spacing = 0.5;
 
 hole_width = 10;
 hole_top_margin = 10;
@@ -47,32 +49,59 @@ module the_hole(width, height, thickness) {
     }
 }
 
-difference() {
-    translate([-wall_width, -wall_width, -wall_width]) {
-        the_box(size + 2*wall_width, height, lock_size + 2*wall_width, wall_width);
-    }
-    union() {
-        the_box(size, height, lock_size);
-        for (pair=[[0, 0], [0, size], [90, -size], [90, 0]]) {
-            angle = pair[0];
-            y_shift= pair[1];
-            if (hole_half_count > 0) {
-                for (i=[0:(hole_half_count-1)]) {
-                    shift_x = hole_width/2
-                        + space_between_holes
-                        + (space_between_holes + hole_width) * i;
-                    rotate([0, 0, angle]) {
-                        translate([shift_x, y_shift, hole_bottom_margin]) {
-                            the_hole(hole_width, hole_height, wall_width * 4);
+module final_box() {
+    difference() {
+        translate([-wall_width, -wall_width, -wall_width]) {
+            the_box(size + 2*wall_width, height, lock_size + 2*wall_width, wall_width);
+        }
+        union() {
+            the_box(size, height, lock_size);
+            for (pair=[[0, 0], [0, size], [90, -size], [90, 0]]) {
+                angle = pair[0];
+                y_shift= pair[1];
+                if (hole_half_count > 0) {
+                    for (i=[0:(hole_half_count-1)]) {
+                        shift_x = hole_width/2
+                            + space_between_holes
+                            + (space_between_holes + hole_width) * i;
+                        rotate([0, 0, angle]) {
+                            translate([shift_x, y_shift, hole_bottom_margin]) {
+                                the_hole(hole_width, hole_height, wall_width * 4);
+                            }
+                        }
+                        rotate([0, 0, angle]) {
+                            translate([size - shift_x, y_shift, hole_bottom_margin]) {
+                                the_hole(hole_width, hole_height, wall_width * 4);
+                            }
                         }
                     }
-                    rotate([0, 0, angle]) {
-                        translate([size - shift_x, y_shift, hole_bottom_margin]) {
-                            the_hole(hole_width, hole_height, wall_width * 4);
-                        }
-                    }
-                }
-           }
+               }
+            }
         }
     }
 }
+
+module final_lid() {
+    shifted_by = -2*wall_width-lid_spacing;
+    difference() {
+        translate([shifted_by, shifted_by, shifted_by]) {
+            // size, height, lock_size, lock_offset=0
+            the_box(
+              size + 4*wall_width+2*lid_spacing,
+              lid_height,
+              lock_size + 4*wall_width + 2*lid_spacing,
+              2*wall_width + lid_spacing);
+        }
+        translate([-wall_width-lid_spacing, -wall_width-lid_spacing, -wall_width]) {
+            the_box(
+                size + 2*wall_width + 2*lid_spacing,
+                lid_height,
+                lock_size + 2*wall_width + lid_spacing,
+                wall_width
+            );
+        }
+    }
+}
+
+final_box();
+//final_lid();
