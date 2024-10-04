@@ -50,7 +50,7 @@ module letter(the_letter) {
     }
 }
 
-module make_acorn(height, filename, number, frac=0.05) {
+module make_acorn(height, filename, number, frac=0.01) {
     translate([0, 0, - height * frac]) {
         // Get rid of bottom layer from the white color
         intersection() {
@@ -74,10 +74,30 @@ color("yellow") {
                 [0, -height]
             ]);
         }
-        for (a = [-1, 1]) {
-            translate([a * screw_offset_x, screw_offset_y, -thickness_base - 1]) {
-                cylinder(thickness_base + 2, d = screw_diameter);
+        union() {
+            for (a = [-1, 1]) {
+                translate([a * screw_offset_x, screw_offset_y, -thickness_base - 1]) {
+                    cylinder(thickness_base + 2, d = screw_diameter);
+                }
             }
+            if (false) { translate([0, 0, -thickness_base / 2]) linear_extrude(thickness_base) {
+                translate([0, -height * 0.74, 0]) {
+                    text("2024", size=text_size * 0.7, halign="center", valign="top");
+                }
+                translate([0, -height * 0.79, 0]) {
+                    text("17/8", size=text_size * 0.7, halign="center", valign="top");
+                }
+            }}
+            
+            rotate([0, 180, 0]) translate([0, 0, thickness_base * 0.8]) linear_extrude(thickness_base) {
+                translate([0, -height * 0.1, 0]) {
+                    text("17.8.", size=text_size * 1.5, halign="center", valign="top");
+                }
+                translate([0, -height * 0.3, 0]) {
+                    text("2024", size=text_size * 1.5, halign="center", valign="top");
+                }
+            }
+            
         }
     }
 }
@@ -127,12 +147,5 @@ color("green") {
         }
     }
 
-    linear_extrude(thickness_leaf / 2) {
-        translate([0, -height * 0.75, 0]) {
-            text("17/8", size=text_size * 0.5, halign="center", valign="top");
-        }
-        translate([0, -height * 0.8, 0]) {
-            text("2024", size=text_size * 0.5, halign="center", valign="top");
-        }
-    }
+    
 }
