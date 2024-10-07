@@ -1,10 +1,14 @@
 
 include <BOSL2/std.scad>
 
-print = 200;
+print = 300;
 
 drawer_width = 80;
 drawer_length = 120;
+drawer_segment_front_length = 80;
+drawer_segment_middle_length = 80;
+drawer_segment_dovetail = [6, 12];
+drawer_segment_dovetail_depth = 8;
 drawer_unit_height = 30 + 1/3; // Including spacing!
 drawer_actual_height = 25;
 drawer_side_wall = 2;
@@ -14,7 +18,7 @@ drawer_count = 2;
 drawer_frame_spacing_half = 0.5;
 
 frame_wall = 2;
-frame_depth = 120;
+frame_depth = 50;
 frame_back_wall = 2;
 
 rail_height = 3;
@@ -22,12 +26,12 @@ rail_width = 3;
 rail_skew_length = 6;
 
 pattern_padding = 5;
-pattern_bottom_params = [15, 7] * 1;
-pattern_side_params = [15, 7] * 1;
-pattern_back_params = [15, 7] * 1;
-pattern_drawer_bottom_params = [15, 7] * 1;
-pattern_drawer_side_params = [15, 7] * 1;
-pattern_drawer_back_params = [15, 7] * 1;
+pattern_bottom_params = [15, 7] * 0;
+pattern_side_params = [15, 7] * 0;
+pattern_back_params = [15, 7] * 0;
+pattern_drawer_bottom_params = [15, 7] * 0;
+pattern_drawer_side_params = [15, 7] * 0;
+pattern_drawer_back_params = [15, 7] * 0;
 pattern_drawer_front_params = [15, 7] * 0;
 
 circular_handle_wall = 4;
@@ -87,6 +91,23 @@ module make_rail() {
             anchor=BOTTOM + FRONT + LEFT
         );
     }
+}
+
+module make_flat_dovetail(is_type_one, total_width, height, depth, parameters) {
+    back(is_type_one ? -parameters[0] : parameters[0])
+    intersection() {
+        cuboid([total_width, depth + 1, height], anchor=BOTTOM+FRONT);
+        xcopies(parameters[0]*4, round(total_width / parameters[1])) {
+            linear_extrude(height) {
+                if (is_type_one) {
+                    back(0.1) trapezoid(h=depth, w1=parameters[1], w2=parameters[0], anchor=BOTTOM);
+                } else {
+                    trapezoid(h=depth, w1=parameters[0], w2=parameters[1], anchor=BOTTOM);
+                }
+            }
+        }
+    }
+
 }
 
 module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[20, 8]) {
@@ -253,7 +274,81 @@ module make_drawer() {
     make_circular_handle();
 }
 
+module make_drawer_segment_front() {
+    difference() {
+        cuboid(
+            [drawer_width, drawer_segment_front_length, drawer_actual_height],
+            anchor=BOTTOM + FRONT
+        );
+        union() {
+            up(drawer_bottom_wall) {
+                back(drawer_front_wall) {
+                    cuboid(
+                        [
+                            drawer_width - 2*drawer_side_wall,
+                            drawer_segment_front_length,
+                            drawer_actual_height
+                        ],
+                        anchor=BOTTOM + FRONT
+                    );
+                }
+            }
+            back(drawer_segment_front_length) {
+                down(1) {
+                    make_flat_dovetail(
+                        true,
+                        drawer_width - 2*drawer_side_wall,
+                        2*drawer_bottom_wall,
+                        drawer_segment_dovetail_depth,
+                        drawer_segment_dovetail
+                    );
+                }
+            }
+       }
+   }
+   make_circular_handle();
+}
 
+module make_drawer_segment_middle() {
+    difference() {
+        cuboid(
+            [drawer_width, drawer_segment_middle_length, drawer_actual_height],
+            anchor=BOTTOM + FRONT
+        );
+        union() {
+            up(drawer_bottom_wall) {
+                fwd(1) {
+                    cuboid(
+                        [
+                            drawer_width - 2*drawer_side_wall,
+                            drawer_segment_middle_length + 2,
+                            drawer_actual_height
+                        ],
+                        anchor=BOTTOM + FRONT
+                    );
+                }
+            }
+            back(drawer_segment_front_length) {
+                down(1) {
+                    make_flat_dovetail(
+                        true,
+                        drawer_width - 2*drawer_side_wall,
+                        2*drawer_bottom_wall,
+                        drawer_segment_dovetail_depth,
+                        drawer_segment_dovetail
+                    );
+                }
+            }
+        }
+    }
+    make_flat_dovetail(
+        true,
+        drawer_width - 2*drawer_side_wall,
+        drawer_bottom_wall,
+        drawer_segment_dovetail_depth,
+        drawer_segment_dovetail
+    );
+}
 
 if (print == 100) {
     make_frame();
@@ -262,6 +357,16 @@ if (print == 100) {
 if (print == 200) {
     make_drawer();
 }
+
+if (print == 300) {
+    color("#ccffcc") make_drawer_segment_front();
+    back(drawer_segment_middle_length) color("#ccccff") make_drawer_segment_middle();
+}
+
+if (print == 400) {
+    make_flat_dovetail(true, 200, 10, 10, 20, 10);
+}
+
 //make_rail();
 
 //left(drawer_width/2) xrot(90) make_subtractable_pattern(drawer_width, frame_depth, frame_wall, pattern_padding);
