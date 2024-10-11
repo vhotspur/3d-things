@@ -1,7 +1,7 @@
 
 include <BOSL2/std.scad>
 
-print = 300;
+print = 100;
 
 drawer_width = 80;
 drawer_length = 120;
@@ -274,8 +274,23 @@ module make_drawer() {
     make_circular_handle();
 }
 
+module make_drawer_segment_u_shape(
+        height, width,
+        bottom_thickness, side_wall_thickness,
+        side_length,
+        bottom_length,
+        side_wall_fwd_shift) {
+    cuboid([width, bottom_length, bottom_thickness], anchor=BOTTOM + FRONT);
+    xcopies(width - side_wall_thickness, 2) {
+        back(side_wall_fwd_shift) {
+            cuboid([side_wall_thickness, side_length, height], anchor=BOTTOM + FRONT);
+        }
+    }
+}
+
+
 module make_drawer_segment_front() {
-    difference() {
+    /*difference() {
         cuboid(
             [drawer_width, drawer_segment_front_length, drawer_actual_height],
             anchor=BOTTOM + FRONT
@@ -305,12 +320,25 @@ module make_drawer_segment_front() {
                 }
             }
        }
-   }
+   }*/
+   make_drawer_segment_u_shape(
+        drawer_actual_height, drawer_width,
+        drawer_bottom_wall, drawer_side_wall,
+        drawer_segment_front_length,
+        drawer_segment_front_length + drawer_segment_dovetail_depth / 2,
+        0);
+   cuboid([drawer_width, drawer_front_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
    make_circular_handle();
 }
 
 module make_drawer_segment_middle() {
-    difference() {
+    make_drawer_segment_u_shape(
+        drawer_actual_height, drawer_width,
+        drawer_bottom_wall, drawer_side_wall,
+        drawer_segment_middle_length,
+        drawer_segment_middle_length,
+        0);
+    /*difference() {
         cuboid(
             [drawer_width, drawer_segment_middle_length, drawer_actual_height],
             anchor=BOTTOM + FRONT
@@ -340,7 +368,7 @@ module make_drawer_segment_middle() {
                 }
             }
         }
-    }
+    }*/
     make_flat_dovetail(
         true,
         drawer_width - 2*drawer_side_wall,
@@ -360,12 +388,23 @@ if (print == 200) {
 
 if (print == 300) {
     color("#ccffcc") make_drawer_segment_front();
-    back(drawer_segment_middle_length) color("#ccccff") make_drawer_segment_middle();
+    //back(drawer_segment_middle_length) color("#ccccff") make_drawer_segment_middle();
 }
 
 if (print == 400) {
     make_flat_dovetail(true, 200, 10, 10, 20, 10);
 }
+
+if (print == 500) {
+    make_drawer_segment_u_shape(
+        15, 40,
+        3, 2,
+        40,
+        50,
+        5
+    );
+}
+
 
 //make_rail();
 
