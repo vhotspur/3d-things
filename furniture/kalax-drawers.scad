@@ -19,11 +19,12 @@ drawer_frame_spacing_half = 0.5;
 
 frame_wall = 2;
 frame_depth = 50;
-frame_back_wall = 2;
+frame_back_wall = 0;
 
 rail_height = 3;
 rail_width = 3;
 rail_skew_length = 6;
+rail_offset = 5;
 
 pattern_padding = 5;
 pattern_bottom_params = [15, 7] * 0;
@@ -69,20 +70,20 @@ frame_outer_height = drawer_unit_height * drawer_count;
 echo(format("FRAME: {} wide, {} high", [frame_outer_width, frame_outer_height]));
 
 module make_rail() {
-    up(rail_skew_length) {
+    up(rail_skew_length + rail_offset) {
         cuboid(
-            [rail_width, rail_height, frame_depth - 2 * rail_skew_length],
+            [rail_width, rail_height, frame_depth - 2 * (rail_skew_length + rail_offset)],
             anchor=BOTTOM + FRONT + LEFT
         );
     }
-    prismoid(
+    up(rail_offset) prismoid(
         size1=[0, rail_height],
         size2=[rail_width, rail_height],
         shift=[rail_width/2, 0],
         h=rail_skew_length,
         anchor=BOTTOM + FRONT + LEFT
     );
-    up(frame_depth - rail_skew_length) {
+    up(frame_depth - rail_skew_length - rail_offset) {
         prismoid(
             size1=[rail_width, rail_height],
             size2=[0, rail_height],
