@@ -3,32 +3,32 @@ include <BOSL2/std.scad>
 
 print = 100;
 
-drawer_width = 80;
+drawer_width = 161;
 drawer_length = 120;
 drawer_segment_front_length = 80;
 drawer_segment_middle_length = 80;
 drawer_segment_dovetail = [6, 12];
 drawer_segment_dovetail_depth = 8;
-drawer_unit_height = 30 + 1/3; // Including spacing!
+drawer_unit_height = 162/3; // Including spacing!
 drawer_actual_height = 25;
-drawer_side_wall = 2;
-drawer_bottom_wall = 2;
+drawer_side_wall = 3;
+drawer_bottom_wall = 3;
 drawer_front_wall = 2;
-drawer_count = 2;
+drawer_count = 3;
 drawer_frame_spacing_half = 0.5;
 
-frame_wall = 2;
-frame_depth = 50;
+frame_wall = 2.75;
+frame_depth = 60;
 frame_back_wall = 0;
 
 rail_height = 3;
 rail_width = 3;
-rail_skew_length = 6;
-rail_offset = 5;
+rail_skew_length = 2;
+rail_offset = 3;
 
 pattern_padding = 5;
-pattern_bottom_params = [15, 7] * 0;
-pattern_side_params = [15, 7] * 0;
+pattern_bottom_params = [13, 6, 3, 0] * 0;
+pattern_side_params = [13, 6, 3, 0] * 0;
 pattern_back_params = [15, 7] * 0;
 pattern_drawer_bottom_params = [15, 7] * 0;
 pattern_drawer_side_params = [15, 7] * 0;
@@ -64,7 +64,7 @@ $fn = 100;
 
 
 frame_outer_width = drawer_width + 2*drawer_frame_spacing_half + frame_wall*2;
-frame_outer_height = drawer_unit_height * drawer_count;
+frame_outer_height = drawer_unit_height * drawer_count + frame_wall * 2;
 
 
 echo(format("FRAME: {} wide, {} high", [frame_outer_width, frame_outer_height]));
@@ -115,7 +115,7 @@ module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[2
     if (pattern[0] * pattern[1] > 0) {
         move([width/2, height/2, -thickness]) intersection() {
             cube([width - padding*2, height - padding*2, thickness * 4], center=true);
-            grid_copies(size=[width, height], spacing=pattern[0], stagger=true) {
+            translate([pattern[2], pattern[3], 0]) grid_copies(size=[2*width, 2*height], spacing=pattern[0], stagger=true) {
                 linear_extrude(thickness*4) zrot(90) hexagon(pattern[1]);
                 //(d=20, h=thickness + 2);
             }
@@ -166,12 +166,13 @@ module make_frame() {
     }
     
     if (drawer_count > 1) {
-        rail_tops = [
+        rail_bottoms = [
             for (i = [1:(drawer_count) - 1])
-            i * drawer_unit_height + frame_wall
+            i * drawer_unit_height + frame_wall - rail_height
         ];
         rail_shift_x = frame_outer_width/2 - frame_wall;
-        for (y = [ for (i = rail_tops) i - rail_height]) {
+        for (y = [ for (i = rail_bottoms) i ]) {
+            echo(format("Rail bottoms at {} ({} from bottom, unit is {})", [y, y - frame_wall, drawer_unit_height]));
             move([-rail_shift_x, y, 0]) make_rail();
             move([rail_shift_x, y, 0]) xflip() make_rail();
         }
