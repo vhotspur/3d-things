@@ -292,37 +292,6 @@ module make_drawer_segment_u_shape(
 
 
 module make_drawer_segment_front() {
-    /*difference() {
-        cuboid(
-            [drawer_width, drawer_segment_front_length, drawer_actual_height],
-            anchor=BOTTOM + FRONT
-        );
-        union() {
-            up(drawer_bottom_wall) {
-                back(drawer_front_wall) {
-                    cuboid(
-                        [
-                            drawer_width - 2*drawer_side_wall,
-                            drawer_segment_front_length,
-                            drawer_actual_height
-                        ],
-                        anchor=BOTTOM + FRONT
-                    );
-                }
-            }
-            back(drawer_segment_front_length) {
-                down(1) {
-                    make_flat_dovetail(
-                        true,
-                        drawer_width - 2*drawer_side_wall,
-                        2*drawer_bottom_wall,
-                        drawer_segment_dovetail_depth,
-                        drawer_segment_dovetail
-                    );
-                }
-            }
-       }
-   }*/
    make_drawer_segment_u_shape(
         drawer_actual_height, drawer_width,
         drawer_bottom_wall, drawer_side_wall,
@@ -340,37 +309,6 @@ module make_drawer_segment_middle() {
         drawer_segment_middle_length,
         drawer_segment_middle_length,
         0);
-    /*difference() {
-        cuboid(
-            [drawer_width, drawer_segment_middle_length, drawer_actual_height],
-            anchor=BOTTOM + FRONT
-        );
-        union() {
-            up(drawer_bottom_wall) {
-                fwd(1) {
-                    cuboid(
-                        [
-                            drawer_width - 2*drawer_side_wall,
-                            drawer_segment_middle_length + 2,
-                            drawer_actual_height
-                        ],
-                        anchor=BOTTOM + FRONT
-                    );
-                }
-            }
-            back(drawer_segment_front_length) {
-                down(1) {
-                    make_flat_dovetail(
-                        true,
-                        drawer_width - 2*drawer_side_wall,
-                        2*drawer_bottom_wall,
-                        drawer_segment_dovetail_depth,
-                        drawer_segment_dovetail
-                    );
-                }
-            }
-        }
-    }*/
     make_flat_dovetail(
         true,
         drawer_width - 2*drawer_side_wall,
@@ -390,7 +328,7 @@ if (print == 200) {
 
 if (print == 300) {
     color("#ccffcc") make_drawer_segment_front();
-    //back(drawer_segment_middle_length) color("#ccccff") make_drawer_segment_middle();
+    up(-1) back(drawer_segment_middle_length) color("#ccccff") make_drawer_segment_middle();
 }
 
 if (print == 400) {
