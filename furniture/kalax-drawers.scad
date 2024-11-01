@@ -67,7 +67,11 @@ frame_outer_width = drawer_width + 2*drawer_frame_spacing_half + frame_wall*2;
 frame_outer_height = drawer_unit_height * drawer_count + frame_wall * 2;
 
 
-echo(format("FRAME: {} wide, {} high", [frame_outer_width, frame_outer_height]));
+echo(format(
+    "FRAME: {} wide (twice {}), {} high (twice {})", [
+        frame_outer_width, frame_outer_width * 2,
+        frame_outer_height, frame_outer_height * 2,
+]));
 
 module make_rail() {
     up(rail_skew_length + rail_offset) {
