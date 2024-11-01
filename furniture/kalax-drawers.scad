@@ -17,9 +17,13 @@ drawer_front_wall = 2;
 drawer_count = 3;
 drawer_frame_spacing_half = 0.5;
 
-frame_wall = 2.75;
+frame_wall = 3;
 frame_depth = 60;
 frame_back_wall = 0;
+frame_mount_hole_outer_radius = 1;
+frame_mount_hole_inner_radius = 4;
+frame_mount_hole_offset_z = 4;
+frame_mount_hole_offset_side = 0; //25;
 
 rail_height = 3;
 rail_width = 3;
@@ -164,6 +168,29 @@ module make_frame() {
                 back(i*drawer_unit_height + frame_wall) {
                     left(frame_outer_width/2-1) side_pattern();
                     right(frame_outer_width/2-1) side_pattern();
+                }
+            }
+        }
+        if (frame_mount_hole_offset_side > 0) {
+            cyl_params = [
+                [frame_mount_hole_outer_radius, frame_mount_hole_inner_radius, -1, 0, 1, -1, 0],
+                [frame_mount_hole_inner_radius, frame_mount_hole_outer_radius, +1, 0, 1, -1, 1],
+                [frame_mount_hole_outer_radius, frame_mount_hole_inner_radius, -1, 1, -1, 1, 0],
+                [frame_mount_hole_inner_radius, frame_mount_hole_outer_radius, +1, 1, -1, 1, 1]
+            ];
+            xshift = (frame_outer_width/2 - frame_wall/2);
+            for (param = cyl_params) {
+                translate([
+                        param[2] * xshift,
+                        param[3] * frame_outer_height + param[4] * frame_mount_hole_offset_side,
+                        frame_mount_hole_offset_z]) {
+                    xcyl(l=frame_wall, r1=param[0], r2=param[1]);
+                }
+                translate([
+                        param[5] * xshift + param[4] * frame_mount_hole_offset_side,
+                        param[6] * (frame_outer_height - frame_wall),
+                        frame_mount_hole_offset_z]) {
+                    ycyl(l=frame_wall, r1=param[0], r2=param[1], anchor=FRONT);
                 }
             }
         }
