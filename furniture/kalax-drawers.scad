@@ -39,9 +39,12 @@ pattern_padding = 5;
 pattern_bottom_params = [13, 6, 3, 0] * 0;
 pattern_side_params = [13, 6, 3, 0] * 0;
 pattern_back_params = [15, 7] * 0;
-pattern_drawer_bottom_params = [15, 7] * 0;
-pattern_drawer_side_params = [15, 7] * 0;
-pattern_drawer_back_params = [15, 7] * 0;
+pattern_drawer_bottom_padding = 6;
+pattern_drawer_bottom_params = [23, 12] * 0; //[15, 7] * 1;
+pattern_drawer_side_padding = 3;
+pattern_drawer_side_params = [12, 6] * 0;
+pattern_drawer_back_padding = 3;
+pattern_drawer_back_params = [12, 6] * 0;
 pattern_drawer_front_params = [15, 7] * 0;
 
 circular_handle_wall = 4;
@@ -148,6 +151,13 @@ module make_flat_dovetail(gender, total_width, thickness, size, dovetail_width, 
 }
 
 module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[20, 8]) {
+    if (false) {
+        echo(format(
+            "Subtractable pattern: {} x {} x {} (pad {}, pattern {})", [
+                width, height, thickness,
+                padding, pattern
+        ]));
+    }
     if (pattern[0] * pattern[1] > 0) {
         move([width/2, height/2, -1]) intersection() {
             cube([width - padding*2, height - padding*2, thickness], center=true);
@@ -342,11 +352,26 @@ module make_drawer_segment_u_shape(
         connection_offset=0,
         connection_vertical_front_shift=undef,
         connection_vertical_back_shift=undef) {
+
     module vertical_dovetail(angle) {
         back(0) zrot(90) yrot(angle) {
             dovetail("male", width=drawer_segment_vertical_dovetail_width, height=drawer_segment_vertical_dovetail_depth, thickness=width + 2, slope=4);
         }
     }
+
+    module side_pattern() {
+        front_shift = connection_depth_front > 0 ? drawer_segment_vertical_dovetail_depth : 0;
+        back_shift = connection_depth_back > 0 ? drawer_segment_vertical_dovetail_depth : 0;
+        actual_length = length - front_shift - back_shift;
+        up(bottom_thickness) back(front_shift) zrot(90) xrot(90) make_subtractable_pattern(
+            actual_length,
+            height - bottom_thickness,
+            side_wall_thickness + 2,
+            pattern_drawer_side_padding,
+            pattern_drawer_side_params
+        );
+    }
+
     difference() {
         union() {
             cuboid([width, length, bottom_thickness], anchor=BOTTOM + FRONT);
@@ -355,6 +380,21 @@ module make_drawer_segment_u_shape(
             }
         }
         union() {
+            if (pattern_drawer_bottom_params[0] > 0) {
+                left(width/2 - side_wall_thickness) up(bottom_thickness/2 + 1) back(connection_depth_front) make_subtractable_pattern(
+                    width - 2*side_wall_thickness,
+                    length - connection_depth_front - connection_depth_back,
+                    bottom_thickness + 2,
+                    pattern_drawer_bottom_padding,
+                    pattern_drawer_bottom_params
+                );
+            }
+
+            if (pattern_drawer_side_params[0] > 0) {
+                left(width/2 - side_wall_thickness + 1) side_pattern();
+                right(width/2 - 1) side_pattern();
+            }
+
             if (connection_depth_back) {
                 back(length + 1) down(1) cuboid([
                     width - side_wall_thickness * 2 - connection_offset * 2,
@@ -434,7 +474,7 @@ module make_drawer_segment_back() {
     make_drawer_segment_u_shape(
         drawer_actual_height, drawer_width,
         drawer_bottom_wall, drawer_side_wall,
-        drawer_segment_back_length,
+        drawer_segment_back_length - drawer_back_wall,
         drawer_segment_dovetail_depth/2,
         0,
         drawer_segment_dovetail_depth,
@@ -448,8 +488,19 @@ module make_drawer_segment_back() {
         drawer_segment_dovetail_depth,
         drawer_segment_dovetail_width
     );
-    back(drawer_segment_back_length - drawer_back_wall) {
-        cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
+    difference() {
+        back(drawer_segment_back_length - drawer_back_wall) {
+            cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
+        }
+        if (pattern_drawer_back_params[0] > 0) {
+            up(drawer_bottom_wall) back(drawer_segment_back_length - drawer_back_wall + 1) left(drawer_width / 2 - drawer_side_wall) xrot(90) make_subtractable_pattern(
+                drawer_width - 2*drawer_side_wall,
+                drawer_actual_height - drawer_bottom_wall,
+                drawer_bottom_wall + 2,
+                pattern_drawer_back_padding,
+                pattern_drawer_back_params
+            );
+        }
     }
 }
 
