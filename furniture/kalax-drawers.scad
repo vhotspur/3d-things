@@ -2,13 +2,13 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 
-print = 100;
+print = 300;
 
 drawer_width = 161;
 drawer_length = 120;
-drawer_segment_front_length = 80;
-drawer_segment_middle_length = 80;
-drawer_segment_back_length = 30;
+drawer_segment_front_length = 126;
+drawer_segment_middle_length = 130;
+drawer_segment_back_length = 131;
 drawer_segment_dovetail_width = 12;
 drawer_segment_dovetail_depth = 8;
 drawer_segment_vertical_dovetail_width = 12;
@@ -80,6 +80,13 @@ echo(format(
     "FRAME: {} wide (twice {}), {} high (twice {})", [
         frame_outer_width, frame_outer_width * 2,
         frame_outer_height, frame_outer_height * 2,
+]));
+echo(format(
+    "DRAWER SIZE: OUTER {} x {}, INNER SPACE {} x {}", [
+        drawer_width,
+        drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length,
+        drawer_width - 2 * drawer_side_wall,
+        drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length - drawer_front_wall - drawer_back_wall,
 ]));
 
 module make_rail() {
