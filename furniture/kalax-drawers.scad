@@ -51,7 +51,8 @@ circular_handle_wall = 4;
 circular_handle_spacing = 10;
 circular_handle_height = 8;
 
-$fn = 100;
+$fa = $preview ? 10 : 0.5;
+$fs = $preview ? 10 : 0.5;
 
 //drawer_width = 161;
 //drawer_length = 130;
