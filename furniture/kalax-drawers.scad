@@ -2,7 +2,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 
-print = 300;
+print = 310;
 
 inner_box_unit = 75;
 drawer_width = 161;
@@ -57,6 +57,10 @@ circular_handle_height = 8;
 
 $fa = $preview ? 10 : 0.5;
 $fs = $preview ? 10 : 0.5;
+
+col_normal = "#ccffcc";
+col_supports = "#ccccff";
+col_no_infill = "#ffcccc";
 
 drawer_length = drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length;
 
@@ -380,6 +384,13 @@ module make_drawer_back_side() {
     }
 }
 
+module make_drawer_side_connection_supports_shape(anchor=FRONT) {
+    cuboid(
+        [drawer_side_wall, drawer_segment_dovetail_depth, drawer_actual_height],
+        anchor=BOTTOM + anchor
+    );
+}
+
 module make_drawer_segment_front() {
     back(drawer_front_wall) make_drawer_segment_u_shape(
         drawer_actual_height, drawer_width,
@@ -399,6 +410,21 @@ module make_drawer_segment_front() {
         drawer_segment_dovetail_width
     );
     make_drawer_front_side();
+}
+
+module make_drawer_side_connection_supports(anchor=BACK) {
+    left(drawer_width/2) make_drawer_side_connection_supports_shape(anchor + LEFT);
+    right(drawer_width/2) make_drawer_side_connection_supports_shape(anchor + RIGHT);
+}
+
+module make_drawer_segment_front_supports() {
+    back(drawer_segment_front_length) make_drawer_side_connection_supports();
+}
+
+module make_drawer_segment_front_no_infill() {
+    up(drawer_actual_height) {
+        cuboid([drawer_width, drawer_front_wall, drawer_unit_height - drawer_actual_height], anchor=BOTTOM + FRONT);
+    }
 }
 
 module make_drawer_segment_middle() {
@@ -428,6 +454,11 @@ module make_drawer_segment_middle() {
     );
 }
 
+module make_drawer_segment_middle_supports() {
+    back(0) make_drawer_side_connection_supports(FRONT);
+    back(drawer_segment_middle_length) make_drawer_side_connection_supports();
+}
+
 module make_drawer_segment_back() {
     make_drawer_segment_u_shape(
         drawer_actual_height, drawer_width,
@@ -447,6 +478,10 @@ module make_drawer_segment_back() {
         drawer_segment_dovetail_width
     );
     back(drawer_segment_back_length - drawer_back_wall) make_drawer_back_side();
+}
+
+module make_drawer_segment_back_supports() {
+    make_drawer_side_connection_supports(FRONT);
 }
 
 
@@ -476,15 +511,40 @@ if (print == 300) {
 }
 
 if (print == 310) {
+    color(col_normal) make_drawer_segment_front();
+    color(col_supports) make_drawer_segment_front_supports();
+    color(col_no_infill) make_drawer_segment_front_no_infill();
+}
+if (print == 311) {
     make_drawer_segment_front();
+}
+if (print == 312) {
+    make_drawer_segment_front_supports();
+}
+if (print == 313) {
+    make_drawer_segment_front_no_infill();
 }
 
 if (print == 320) {
+    color(col_normal) make_drawer_segment_middle();
+    color(col_supports) make_drawer_segment_middle_supports();
+}
+if (print == 321) {
     make_drawer_segment_middle();
+}
+if (print == 322) {
+    make_drawer_segment_middle_supports();
 }
 
 if (print == 330) {
+    color(col_normal) make_drawer_segment_back();
+    color(col_supports) make_drawer_segment_back_supports();
+}
+if (print == 331) {
     make_drawer_segment_back();
+}
+if (print == 332) {
+    make_drawer_segment_back_supports();
 }
 
 if (print == 350) {
