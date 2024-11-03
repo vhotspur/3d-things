@@ -284,73 +284,6 @@ module make_circular_handle() {
     make_chamfered_circular_handle(0);
 }
 
-module make_drawer() {
-    difference() {
-        cuboid(
-            [drawer_width, drawer_length, drawer_actual_height],
-            anchor=BOTTOM + FRONT
-        );
-        union() {
-            up(drawer_bottom_wall) {
-                back(drawer_front_wall) {
-                    cuboid(
-                        [
-                            drawer_width - 2*drawer_side_wall,
-                            drawer_length - drawer_side_wall - drawer_front_wall,
-                            drawer_actual_height
-                        ],
-                        anchor=BOTTOM + FRONT
-                    );
-                }
-            }
-            left(drawer_width/2) {
-                up(1) make_subtractable_pattern(
-                    drawer_width,
-                    drawer_length,
-                    drawer_bottom_wall,
-                    pattern_padding,
-                    pattern_drawer_bottom_params
-                );
-            }
-            if (pattern_drawer_side_params[0] > 0) {
-                left(drawer_width/2 - 1) zrot(90) xrot(90) make_subtractable_pattern(
-                    drawer_length,
-                    drawer_actual_height,
-                    drawer_side_wall,
-                    pattern_padding,
-                    pattern_drawer_side_params
-                );
-                right(drawer_width/2 + 1 - drawer_side_wall) zrot(90) xrot(90) make_subtractable_pattern(
-                    drawer_length,
-                    drawer_actual_height,
-                    drawer_side_wall,
-                    pattern_padding,
-                    pattern_drawer_side_params
-                );
-            }
-            if (pattern_drawer_back_params[0] > 0) {
-                back(drawer_length - 1) left(drawer_width/2) xrot(90) make_subtractable_pattern(
-                    drawer_width,
-                    drawer_actual_height,
-                    drawer_side_wall,
-                    pattern_padding,
-                    pattern_drawer_back_params
-                );
-            }
-            if (pattern_drawer_front_params[0] > 0) {
-                back(1) left(drawer_width/2) xrot(90) make_subtractable_pattern(
-                    drawer_width,
-                    drawer_actual_height,
-                    drawer_side_wall,
-                    pattern_padding,
-                    pattern_drawer_front_params
-                );
-            }
-        }
-    }
-    make_circular_handle();
-}
-
 module make_drawer_segment_u_shape(
         height, width,
         bottom_thickness, side_wall_thickness,
@@ -428,12 +361,31 @@ module make_drawer_segment_u_shape(
     }
 }
 
+module make_drawer_front_side() {
+    cuboid([drawer_width, drawer_front_wall, drawer_unit_height], anchor=BOTTOM + FRONT);
+    make_chamfered_circular_handle();
+}
+
+module make_drawer_back_side() {
+    difference() {
+        cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
+        if (pattern_drawer_back_params[0] > 0) {
+            up(drawer_bottom_wall) back(1) left(drawer_width / 2 - drawer_side_wall) xrot(90) make_subtractable_pattern(
+                drawer_width - 2*drawer_side_wall,
+                drawer_actual_height - drawer_bottom_wall,
+                drawer_bottom_wall + 2,
+                pattern_drawer_back_padding,
+                pattern_drawer_back_params
+            );
+        }
+    }
+}
 
 module make_drawer_segment_front() {
-    make_drawer_segment_u_shape(
+    back(drawer_front_wall) make_drawer_segment_u_shape(
         drawer_actual_height, drawer_width,
         drawer_bottom_wall, drawer_side_wall,
-        drawer_segment_front_length,
+        drawer_segment_front_length - drawer_front_wall,
         0,
         drawer_segment_dovetail_depth/2,
         drawer_segment_dovetail_depth,
@@ -447,8 +399,7 @@ module make_drawer_segment_front() {
         drawer_segment_dovetail_depth,
         drawer_segment_dovetail_width
     );
-    cuboid([drawer_width, drawer_front_wall, drawer_unit_height], anchor=BOTTOM + FRONT);
-    make_chamfered_circular_handle();
+    make_drawer_front_side();
 }
 
 module make_drawer_segment_middle() {
@@ -496,20 +447,18 @@ module make_drawer_segment_back() {
         drawer_segment_dovetail_depth,
         drawer_segment_dovetail_width
     );
-    difference() {
-        back(drawer_segment_back_length - drawer_back_wall) {
-            cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
-        }
-        if (pattern_drawer_back_params[0] > 0) {
-            up(drawer_bottom_wall) back(drawer_segment_back_length - drawer_back_wall + 1) left(drawer_width / 2 - drawer_side_wall) xrot(90) make_subtractable_pattern(
-                drawer_width - 2*drawer_side_wall,
-                drawer_actual_height - drawer_bottom_wall,
-                drawer_bottom_wall + 2,
-                pattern_drawer_back_padding,
-                pattern_drawer_back_params
-            );
-        }
-    }
+    back(drawer_segment_back_length - drawer_back_wall) make_drawer_back_side();
+}
+
+
+module make_drawer() {
+    back(drawer_front_wall) make_drawer_segment_u_shape(
+        drawer_actual_height, drawer_width,
+        drawer_bottom_wall, drawer_side_wall,
+        drawer_length - drawer_back_wall - drawer_front_wall
+    );
+    make_drawer_front_side();
+    back(drawer_length - drawer_back_wall) make_drawer_back_side();
 }
 
 
