@@ -155,6 +155,7 @@ module make_flat_dovetail(gender, total_width, thickness, size, dovetail_width, 
 }
 
 module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[20, 8]) {
+    function make_odd(val) = ((val % 2) == 0) ? val + 1 : val;
     if (false) {
         echo(format(
             "Subtractable pattern: {} x {} x {} (pad {}, pattern {})", [
@@ -163,9 +164,13 @@ module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[2
         ]));
     }
     if (pattern[0] * pattern[1] > 0) {
+        // Ensure full hexagon is in the middle
+        count_x = make_odd(ceil(width / pattern[0]) * 2);
+        count_y = make_odd(ceil(height / (sqrt(3) * pattern[0] / 2)));
+        echo(format("counts: {} {}", [count_x, count_y]));
         move([width/2, height/2, -1]) intersection() {
             cube([width - padding*2, height - padding*2, thickness], center=true);
-            grid_copies(size=[width, height], spacing=pattern[0], stagger=true) {
+            grid_copies(n=[count_x, count_y], spacing=pattern[0], stagger=true) {
                 down(thickness / 2 + 1) linear_extrude(thickness + 2) zrot(90) hexagon(pattern[1]);
             }
        }
@@ -569,6 +574,9 @@ if (print == 500) {
         50,
         5
     );
+}
+if (print == 501) {
+    make_subtractable_pattern(128, 22, 2); // 135 38
 }
 
 
