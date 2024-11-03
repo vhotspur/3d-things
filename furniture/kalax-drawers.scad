@@ -2,7 +2,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 
-print = 300;
+print = 501;
 
 drawer_width = 161;
 drawer_length = 120;
@@ -149,11 +149,10 @@ module make_flat_dovetail(gender, total_width, thickness, size, dovetail_width, 
 
 module make_subtractable_pattern(width, height, thickness, padding=0, pattern=[20, 8]) {
     if (pattern[0] * pattern[1] > 0) {
-        move([width/2, height/2, -thickness]) intersection() {
-            cube([width - padding*2, height - padding*2, thickness * 4], center=true);
-            translate([pattern[2], pattern[3], 0]) grid_copies(size=[2*width, 2*height], spacing=pattern[0], stagger=true) {
-                linear_extrude(thickness*4) zrot(90) hexagon(pattern[1]);
-                //(d=20, h=thickness + 2);
+        move([width/2, height/2, -1]) intersection() {
+            cube([width - padding*2, height - padding*2, thickness], center=true);
+            grid_copies(size=[width, height], spacing=pattern[0], stagger=true) {
+                down(thickness / 2 + 1) linear_extrude(thickness + 2) zrot(90) hexagon(pattern[1]);
             }
        }
    }
@@ -503,6 +502,21 @@ if (print == 500) {
         50,
         5
     );
+}
+
+if (print == 501) {
+    width = 80;
+    length = 80;
+    thickness = 20;
+    difference() {
+        cuboid([width, length, thickness]);
+        translate([-width/2, -length/2, 1]) {
+            make_subtractable_pattern(
+                width, length, thickness + 2,
+                pattern_drawer_bottom_padding, pattern_drawer_bottom_params
+            );
+        }
+    }
 }
 
 
