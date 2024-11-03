@@ -263,18 +263,25 @@ module make_frame() {
     }
 }
 
-module make_circular_handle() {
+module make_chamfered_circular_handle(chamfer=1) {
     outer_radius_partial = circular_handle_wall + circular_handle_spacing;
     d = outer_radius_partial + (drawer_width * drawer_width) / (4 * outer_radius_partial);
     intersection() {
         back(d/2 - outer_radius_partial) {
-            tube(h=circular_handle_height, od=d, wall=circular_handle_wall, anchor=BOTTOM);
+            difference() {
+                cyl(height=circular_handle_height, d=d, chamfer=chamfer, anchor=BOTTOM);
+                cyl(height=circular_handle_height, d=d - 2*circular_handle_wall, chamfer=-chamfer, anchor=BOTTOM);
+            }
         }
         cuboid(
             [drawer_width, d, circular_handle_height],
             anchor=BOTTOM + BACK,
         );
     }
+}
+
+module make_circular_handle() {
+    make_chamfered_circular_handle(0);
 }
 
 module make_drawer() {
@@ -440,8 +447,8 @@ module make_drawer_segment_front() {
         drawer_segment_dovetail_depth,
         drawer_segment_dovetail_width
     );
-    cuboid([drawer_width, drawer_front_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
-    make_circular_handle();
+    cuboid([drawer_width, drawer_front_wall, drawer_unit_height], anchor=BOTTOM + FRONT);
+    make_chamfered_circular_handle();
 }
 
 module make_drawer_segment_middle() {
