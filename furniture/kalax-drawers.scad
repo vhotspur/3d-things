@@ -2,21 +2,21 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 
-print = 501;
+print = 300;
 
+inner_box_unit = 75;
 drawer_width = 161;
-drawer_length = 120;
-drawer_segment_front_length = 126;
-drawer_segment_middle_length = 130;
-drawer_segment_back_length = 131;
+drawer_segment_front_length = 128;
+drawer_segment_middle_length = 129;
+drawer_segment_back_length = 130;
 drawer_segment_dovetail_width = 12;
 drawer_segment_dovetail_depth = 8;
 drawer_segment_vertical_dovetail_width = 12;
 drawer_segment_vertical_dovetail_depth = 8;
 drawer_unit_height = 162/3; // Including spacing!
-drawer_actual_height = 25;
+drawer_actual_height = 28;
 drawer_side_wall = 5;
-drawer_bottom_wall = 5;
+drawer_bottom_wall = 3;
 drawer_front_wall = 5;
 drawer_back_wall = 5;
 drawer_count = 3;
@@ -51,47 +51,46 @@ circular_handle_wall = 4;
 circular_handle_spacing = 10;
 circular_handle_height = 8;
 
+
+
+// You probably do not need to change anything below :-)
+
 $fa = $preview ? 10 : 0.5;
 $fs = $preview ? 10 : 0.5;
 
-//drawer_width = 161;
-//drawer_length = 130;
-//drawer_unit_height = 55 + 1/3; // Including spacing!
-//drawer_actual_height = 30;
-//drawer_side_wall = 4;
-//drawer_bottom_wall = 4;
-//drawer_front_wall = 4;
-//drawer_count = 3;
-//drawer_frame_spacing_half = 0.5;
-//
-//frame_wall = 3;
-//frame_depth = 80;
-//
-//rail_height = 5;
-//rail_width = 5;
-//rail_skew_length = 5;
-//
-//pattern_padding = 10;
-//pattern_bottom_params = [20, 10] * 1;
-//pattern_side_params = [20, 10] * 1;
-
+drawer_length = drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length;
 
 frame_outer_width = drawer_width + 2*drawer_frame_spacing_half + frame_wall*2;
 frame_outer_height = drawer_unit_height * drawer_count + frame_wall * 2;
 
 
-echo(format(
-    "FRAME: {} wide (twice {}), {} high (twice {})", [
-        frame_outer_width, frame_outer_width * 2,
-        frame_outer_height, frame_outer_height * 2,
-]));
-echo(format(
-    "DRAWER SIZE: OUTER {} x {}, INNER SPACE {} x {}", [
-        drawer_width,
-        drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length,
-        drawer_width - 2 * drawer_side_wall,
-        drawer_segment_front_length + drawer_segment_middle_length + drawer_segment_back_length - drawer_front_wall - drawer_back_wall,
-]));
+
+let (
+    inner_width = drawer_width - 2 * drawer_side_wall,
+    inner_length = drawer_length - (drawer_front_wall + drawer_back_wall),
+    boxes_x = floor(inner_width / inner_box_unit),
+    boxes_y = floor(inner_length / inner_box_unit)
+) {
+    echo(format(
+        "FRAME: {} wide (twice {}), {} high (twice {})", [
+            frame_outer_width, frame_outer_width * 2,
+            frame_outer_height, frame_outer_height * 2,
+    ]));
+    echo(format(
+        "DRAWER SIZE: OUTER {} x {}, INNER SPACE {} x {}", [
+            drawer_width,
+            drawer_length,
+            inner_width,
+            inner_length,
+    ]));
+    echo(format(
+        "BOXES INSIDE (unit {}): {} x {} (extra space is {} x {})", [
+            inner_box_unit,
+            boxes_x, boxes_y,
+            inner_width - inner_box_unit * boxes_x,
+            inner_length - inner_box_unit * boxes_y,
+    ]));
+}
 
 module make_rail() {
     up(rail_skew_length + rail_offset) {
@@ -510,21 +509,6 @@ if (print == 500) {
         50,
         5
     );
-}
-
-if (print == 501) {
-    width = 80;
-    length = 80;
-    thickness = 20;
-    difference() {
-        cuboid([width, length, thickness]);
-        translate([-width/2, -length/2, 1]) {
-            make_subtractable_pattern(
-                width, length, thickness + 2,
-                pattern_drawer_bottom_padding, pattern_drawer_bottom_params
-            );
-        }
-    }
 }
 
 
