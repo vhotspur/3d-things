@@ -442,7 +442,9 @@ module make_drawer_segment_back() {
         drawer_segment_dovetail_depth,
         drawer_segment_dovetail_width
     );
-    back(drawer_segment_back_length) cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
+    back(drawer_segment_back_length - drawer_back_wall) {
+        cuboid([drawer_width, drawer_back_wall, drawer_actual_height], anchor=BOTTOM + FRONT);
+    }
 }
 
 
