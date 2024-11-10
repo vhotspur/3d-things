@@ -131,12 +131,6 @@ module make_flat_dovetail(gender, total_width, thickness, size, dovetail_width, 
         }
     }
 
-    module make_dovetails() {
-        xcopies(distance, round(total_width / distance)) {
-            xrot(90) dovetail(gender, width=dovetail_width, height=size, thickness=thickness, slope=slope);
-        }
-    }
-
     if (gender == "male") {
         intersection() {
             cuboid([total_width, size, thickness], anchor=BOTTOM+BACK);
