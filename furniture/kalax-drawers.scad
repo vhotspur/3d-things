@@ -9,10 +9,10 @@ drawer_width = 161;
 drawer_segment_front_length = 128;
 drawer_segment_middle_length = 129;
 drawer_segment_back_length = 130;
-drawer_segment_dovetail_width = 12;
-drawer_segment_dovetail_depth = 8;
-drawer_segment_vertical_dovetail_width = 12;
-drawer_segment_vertical_dovetail_depth = 8;
+drawer_segment_bottom_dovetail_width = 12;
+drawer_segment_bottom_dovetail_depth = 8;
+drawer_segment_side_dovetail_width = 12;
+drawer_segment_side_dovetail_depth = 8;
 drawer_unit_height = 162/3; // Including spacing!
 drawer_actual_height = 28;
 drawer_side_wall = 4;
@@ -298,13 +298,13 @@ module make_drawer_segment_u_shape(
 
     module vertical_dovetail(angle) {
         back(0) zrot(90) yrot(angle) {
-            dovetail("male", width=drawer_segment_vertical_dovetail_width, height=drawer_segment_vertical_dovetail_depth, thickness=width + 2, slope=4);
+            dovetail("male", width=drawer_segment_side_dovetail_width, height=drawer_segment_side_dovetail_depth, thickness=width + 2, slope=4);
         }
     }
 
     module side_pattern() {
-        front_shift = connection_depth_front > 0 ? drawer_segment_vertical_dovetail_depth : 0;
-        back_shift = connection_depth_back > 0 ? drawer_segment_vertical_dovetail_depth : 0;
+        front_shift = connection_depth_front > 0 ? drawer_segment_side_dovetail_depth : 0;
+        back_shift = connection_depth_back > 0 ? drawer_segment_side_dovetail_depth : 0;
         actual_length = length - front_shift - back_shift;
         up(bottom_thickness) back(front_shift) zrot(90) xrot(90) make_subtractable_pattern(
             actual_length,
@@ -385,7 +385,7 @@ module make_drawer_back_side() {
 
 module make_drawer_side_connection_supports_shape(anchor=FRONT) {
     cuboid(
-        [drawer_side_wall, drawer_segment_dovetail_depth, drawer_actual_height],
+        [drawer_side_wall, drawer_segment_bottom_dovetail_depth, drawer_actual_height],
         anchor=BOTTOM + anchor
     );
 }
@@ -396,17 +396,17 @@ module make_drawer_segment_front() {
         drawer_bottom_wall, drawer_side_wall,
         drawer_segment_front_length - drawer_front_wall,
         0,
-        drawer_segment_dovetail_depth/2,
-        drawer_segment_dovetail_depth,
+        drawer_segment_bottom_dovetail_depth/2,
+        drawer_segment_bottom_dovetail_depth,
         undef,
         drawer_actual_height/2
     );
-    back(drawer_segment_front_length - drawer_segment_dovetail_depth/2) make_flat_dovetail(
+    back(drawer_segment_front_length - drawer_segment_bottom_dovetail_depth/2) make_flat_dovetail(
         "female",
-        drawer_width - 2*drawer_side_wall - drawer_segment_dovetail_depth*2,
+        drawer_width - 2*drawer_side_wall - drawer_segment_bottom_dovetail_depth*2,
         drawer_bottom_wall,
-        drawer_segment_dovetail_depth,
-        drawer_segment_dovetail_width
+        drawer_segment_bottom_dovetail_depth,
+        drawer_segment_bottom_dovetail_width
     );
     make_drawer_front_side();
 }
@@ -431,25 +431,25 @@ module make_drawer_segment_middle() {
         drawer_actual_height, drawer_width,
         drawer_bottom_wall, drawer_side_wall,
         drawer_segment_middle_length,
-        drawer_segment_dovetail_depth/2,
-        drawer_segment_dovetail_depth/2,
-        drawer_segment_dovetail_depth,
+        drawer_segment_bottom_dovetail_depth/2,
+        drawer_segment_bottom_dovetail_depth/2,
+        drawer_segment_bottom_dovetail_depth,
         drawer_actual_height/2,
         drawer_actual_height/2
     );
-    back(drawer_segment_dovetail_depth/2) make_flat_dovetail(
+    back(drawer_segment_bottom_dovetail_depth/2) make_flat_dovetail(
         "male",
-        drawer_width - 2*drawer_side_wall - drawer_segment_dovetail_depth*2,
+        drawer_width - 2*drawer_side_wall - drawer_segment_bottom_dovetail_depth*2,
         drawer_bottom_wall,
-        drawer_segment_dovetail_depth,
-        drawer_segment_dovetail_width
+        drawer_segment_bottom_dovetail_depth,
+        drawer_segment_bottom_dovetail_width
     );
-    back(drawer_segment_middle_length - drawer_segment_dovetail_depth/2) make_flat_dovetail(
+    back(drawer_segment_middle_length - drawer_segment_bottom_dovetail_depth/2) make_flat_dovetail(
         "female",
-        drawer_width - 2*drawer_side_wall - drawer_segment_dovetail_depth*2,
+        drawer_width - 2*drawer_side_wall - drawer_segment_bottom_dovetail_depth*2,
         drawer_bottom_wall,
-        drawer_segment_dovetail_depth,
-        drawer_segment_dovetail_width
+        drawer_segment_bottom_dovetail_depth,
+        drawer_segment_bottom_dovetail_width
     );
 }
 
@@ -463,18 +463,18 @@ module make_drawer_segment_back() {
         drawer_actual_height, drawer_width,
         drawer_bottom_wall, drawer_side_wall,
         drawer_segment_back_length - drawer_back_wall,
-        drawer_segment_dovetail_depth/2,
+        drawer_segment_bottom_dovetail_depth/2,
         0,
-        drawer_segment_dovetail_depth,
+        drawer_segment_bottom_dovetail_depth,
         drawer_actual_height/2,
         undef
     );
-    back(drawer_segment_dovetail_depth/2) make_flat_dovetail(
+    back(drawer_segment_bottom_dovetail_depth/2) make_flat_dovetail(
         "male",
-        drawer_width - 2*drawer_side_wall - drawer_segment_dovetail_depth*2,
+        drawer_width - 2*drawer_side_wall - drawer_segment_bottom_dovetail_depth*2,
         drawer_bottom_wall,
-        drawer_segment_dovetail_depth,
-        drawer_segment_dovetail_width
+        drawer_segment_bottom_dovetail_depth,
+        drawer_segment_bottom_dovetail_width
     );
     back(drawer_segment_back_length - drawer_back_wall) make_drawer_back_side();
 }
@@ -548,10 +548,10 @@ if (print == 332) {
 
 if (print == 350) {
     xrot(90) {
-        dovetail("male", width=drawer_segment_vertical_dovetail_width, height=drawer_segment_vertical_dovetail_depth, thickness=drawer_side_wall, slope=4);
+        dovetail("male", width=drawer_segment_side_dovetail_width, height=drawer_segment_side_dovetail_depth, thickness=drawer_side_wall, slope=4);
     }
     zrot(180) xrot(90) {
-        dovetail("male", width=drawer_segment_vertical_dovetail_width, height=drawer_segment_vertical_dovetail_depth, thickness=drawer_side_wall, slope=4);
+        dovetail("male", width=drawer_segment_side_dovetail_width, height=drawer_segment_side_dovetail_depth, thickness=drawer_side_wall, slope=4);
     }
 }
 
