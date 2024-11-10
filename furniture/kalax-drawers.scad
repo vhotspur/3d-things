@@ -2,7 +2,7 @@
 include <BOSL2/std.scad>
 include <BOSL2/joiners.scad>
 
-print = 310;
+print = 300;
 
 inner_box_unit = 75;
 drawer_width = 161;
@@ -15,10 +15,10 @@ drawer_segment_vertical_dovetail_width = 12;
 drawer_segment_vertical_dovetail_depth = 8;
 drawer_unit_height = 162/3; // Including spacing!
 drawer_actual_height = 28;
-drawer_side_wall = 5;
-drawer_bottom_wall = 3;
-drawer_front_wall = 5;
-drawer_back_wall = 5;
+drawer_side_wall = 4;
+drawer_bottom_wall = 4;
+drawer_front_wall = 4;
+drawer_back_wall = 4;
 drawer_count = 3;
 drawer_frame_spacing_half = 0.5;
 
@@ -40,9 +40,9 @@ pattern_bottom_params = [13, 6, 3, 0] * 0;
 pattern_side_params = [13, 6, 3, 0] * 0;
 pattern_back_params = [15, 7] * 0;
 pattern_drawer_bottom_padding = 6;
-pattern_drawer_bottom_params = [23, 12] * 0; //[15, 7] * 1;
+pattern_drawer_bottom_params = [24, 12] * 0; //[15, 7] * 1;
 pattern_drawer_side_padding = 3;
-pattern_drawer_side_params = [12, 6] * 0;
+pattern_drawer_side_params = [15, 7] * 0;
 pattern_drawer_back_padding = 3;
 pattern_drawer_back_params = [12, 6] * 0;
 pattern_drawer_front_params = [15, 7] * 0;
